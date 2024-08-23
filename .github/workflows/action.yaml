@@ -1,0 +1,31 @@
+name: Deploy my Lambda function
+
+on:
+  push:
+     branches: master
+
+jobs:
+   build:
+     runs-on: Ubuntu
+     steps:
+     - name: Checkout
+       uses: actions/checkout@v4
+     - name: Setup Python
+       uses: actions/setup-python@v5
+       with:
+         python-version: '3.10' 
+     - name: Install Libraries
+       run: |
+            cd function
+            python -m pip install --upgrade pip 
+            if [-f requirements.txt] ; then pip install -r requirements.txt -t .; fi 
+     - name: create Zip bundle
+       run: |
+           cd function
+           zip -r ../${{github.sha}}.zip .
+     - name: Archive Artifacts
+       uses: actions/upload-artifact@v4
+       with:
+         name: zipped-bundle 
+         path: ${{github.sha}}.zip
+     
